@@ -1,1 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>东南亚 TK 短视频广告「裂变脚本生成器」</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
 
+  <!-- 顶部导航栏 -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded text-sm">SEA-TK 投流工具</span>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide">东南亚短视频广告「裂变脚本生成器」</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="fillExampleData()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded transition">
+          ✨ 填入示例数据体验
+        </button>
+        <button onclick="clearAllInputs()" class="text-xs bg-slate-800 hover:bg-red-900/60 text-slate-300 border border-slate-700 px-3 py-1.5 rounded transition">
+          清空重置
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主工作区 -->
+  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 左侧：输入表单区 (占7列) -->
+    <div class="lg:col-span-7 space-y-5">
+      
+      <!-- 规则提示卡片 -->
+      <div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded-r-lg text-xs text-amber-900 space-y-1">
+        <p class="font-bold">⚠️ 系统已内置硬性约束规则：</p>
+        <p>1. <strong>结构锁定</strong>：A钩子 + B场景 + C演示 + D结果 + E-CTA + 常量层（仅改写选中的单个变量位）。</p>
+        <p>2. <strong>忠实合规</strong>：严禁超纲功效、医疗化承诺（治疗/杀菌/消炎/孕期等）及跨品类串味。</p>
+      </div>
+
+      <!-- 1. 母带结构卡 -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex justify-between items-center mb-2">
+          <label class="font-bold text-slate-800 text-sm">1. 母带结构卡 <span class="text-red-500">*</span></label>
+          <span class="text-xs text-slate-400">包含 A/B/C/D/E 原文、时长、unit 节奏及常量层</span>
+        </div>
+        <textarea id="masterCard" rows="6" placeholder="请粘贴已拆解好的母带结构卡（包含各段编号、时长、口播、画面、屏幕文字及常量层说明）..."
+          class="w-full text-sm p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none custom-scrollbar"></textarea>
+      </div>
+
+      <!-- 2. SKU 事实清单 -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex justify-between items-center mb-2">
+          <label class="font-bold text-slate-800 text-sm">2. SKU 事实清单 <span class="text-red-500">*</span></label>
+          <span class="text-xs text-slate-400">仅允许清单内事实出现，无价格时勿自行补充</span>
+        </div>
+        <textarea id="skuFacts" rows="4" placeholder="请填写本品 SKU 名称/编号、核心成分、合规体感功效、规格、价格（如无价格请注明“无价格信息”）..."
+          class="w-full text-sm p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none custom-scrollbar"></textarea>
+      </div>
+
+      <!-- 3-6. 参数控制面板 -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- 3. 本次变量位（强制单选） -->
+        <div>
+          <label class="block font-bold text-slate-800 text-sm mb-1.5">3. 本次变量位（仅限1个） <span class="text-red-500">*</span></label>
+          <select id="variableSlot" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+            <option value="">-- 请选择本次替换的唯一段位 --</option>
+            <option value="A 钩子（0秒入题/痛点或结果直给）">A 钩子（0秒入题/痛点或结果直给）</option>
+            <option value="B 场景（痛点升级/产品首露/质地可视化）">B 场景（痛点升级/产品首露/质地可视化）</option>
+            <option value="C 演示（卖点分述/使用场景背书/偏好收口）">C 演示（卖点分述/使用场景背书/偏好收口）</option>
+            <option value="D 结果（体感结果可视化/克制承诺）">D 结果（体感结果可视化/克制承诺）</option>
+            <option value="E CTA（体验总结/情感钩子/购买指引）">E CTA（体验总结/情感钩子/购买指引）</option>
+            <option value="常量层（仅限明确指定替换的常量元素）">常量层（需在下方补充具体替换项）</option>
+          </select>
+        </div>
+
+        <!-- 6. 目标语言 -->
+        <div>
+          <label class="block font-bold text-slate-800 text-sm mb-1.5">6. 目标市场 / 语言 <span class="text-red-500">*</span></label>
+          <select id="targetLang" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+            <option value="菲律宾语 (PH - Tagalog / Taglish)">🇵🇭 菲律宾语 (PH - Tagalog / Taglish)</option>
+            <option value="泰语 (TH - ภาษาไทย)">🇹🇭 泰语 (TH - ภาษาไทย)</option>
+            <option value="越南语 (VN - Tiếng Việt)">🇻🇳 越南语 (VN - Tiếng Việt)</option>
+            <option value="马来语 (MY - Bahasa Melayu)">🇲🇾 马来语 (MY - Bahasa Melayu)</option>
+          </select>
+        </div>
+
+        <!-- 4. 生成条数 -->
+        <div>
+          <label class="block font-bold text-slate-800 text-sm mb-1.5">4. 生成变体条数 <span class="text-red-500">*</span></label>
+          <input id="generateCount" type="number" min="1" max="10" value="3"
+            class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+
+        <!-- 5. 时长约束 -->
+        <div>
+          <label class="block font-bold text-slate-800 text-sm mb-1.5">5. 时长约束 <span class="text-red-500">*</span></label>
+          <input id="durationConstraint" type="text" placeholder="例如：总时长 18s，A段严格锁定 3.0s"
+            class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+
+        <!-- 补充标签/方向说明（选填） -->
+        <div class="md:col-span-2">
+          <label class="block font-bold text-slate-800 text-sm mb-1.5">补充说明 / 指定标签方向（选填）</label>
+          <input id="extraNotes" type="text" placeholder="例如：指定部位标签为「腋下」、场景标签为「通勤出汗」，或指定今日日期"
+            class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+      </div>
+
+      <!-- 操作按钮组 -->
+      <div class="flex flex-wrap gap-3">
+        <button onclick="buildPrompt()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-5 rounded-xl shadow transition cursor-pointer">
+          ⚡ 生成完整 AI 指令（零成本复制使用）
+        </button>
+      </div>
+
+    </div>
+
+    <!-- 右侧：指令预览与 API 直连区 (占5列) -->
+    <div class="lg:col-span-5 space-y-5">
+      
+      <!-- 1. 生成的完整提示词窗口 -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="font-bold text-slate-800 text-sm">📋 已封装的完整指令（含全部规则）</h2>
+          <button id="copyBtn" onclick="copyPrompt()" class="bg-slate-900 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
+            一键复制指令
+          </button>
+        </div>
+        <textarea id="outputPrompt" rows="13" readonly placeholder="在左侧填写完 6 项必要信息后，点击「生成完整 AI 指令」，此处将自动拼装好包含你所有规则的完整提示词。点击右上角「一键复制指令」，直接粘贴给 ChatGPT / Claude / Gemini 即可！"
+          class="w-full text-xs font-mono bg-slate-900 text-emerald-300 p-3.5 rounded-lg outline-none custom-scrollbar leading-relaxed"></textarea>
+      </div>
+
+      <!-- 2. 进阶：直连 AI 接口直接出脚本（可选） -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-slate-800 text-sm">🤖 进阶：直接调用 AI 接口出分镜（可选）</h2>
+          <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">密钥仅存本地浏览器</span>
+        </div>
+        <p class="text-xs text-slate-500">如果你有 OpenAI / DeepSeek / 兼容接口的 API Key，填入后可直接在当前网页生成分镜表格，无需跳转。</p>
+        
+        <div class="grid grid-cols-1 gap-2.5">
+          <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions" placeholder="API 接口地址 (如 https://api.openai.com/v1/chat/completions)"
+            class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+          <div class="grid grid-cols-2 gap-2">
+            <input id="apiModel" type="text" value="deepseek-chat" placeholder="模型名 (如 gpt-4o / deepseek-chat)"
+              class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+            <input id="apiKey" type="password" placeholder="粘贴你的 API Key (sk-...)"
+              class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+          </div>
+        </div>
+
+        <button id="runApiBtn" onclick="callLLMDirectly()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition">
+          🚀 直接在网页内生成分镜脚本
+        </button>
+
+        <!-- AI 返回结果显示区 -->
+        <div id="aiResultWrapper" class="hidden mt-3">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-emerald-700">✅ 生成结果：</span>
+            <button onclick="copyAiResult()" class="text-xs text-slate-600 hover:text-slate-900 underline">复制分镜结果</button>
+          </div>
+          <div id="aiResultBox" class="text-xs bg-slate-50 border border-slate-200 p-3 rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap custom-scrollbar leading-relaxed"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // 核心角色与规则模板（100% 忠实还原你的设定，已更新为 PH）
+    const SYSTEM_RULES = `# 角色
+你是东南亚（TH/VN/PH/MY）短视频广告「裂变脚本生成器」。你的唯一任务是：
+基于一份已拆解好的【母带结构卡】，在锁定结构的前提下，只替换指定的变量位，
+批量产出可直接拍摄的分镜脚本。你不做创意发散，只做受约束的替换生成。
+
+# 一、结构锁定规则（不可违反）
+成片 = A钩子 + B场景 + C演示 + D结果 + E-CTA，外加「常量层」全程贯穿。
+- A 钩子：0 秒即入题，痛点/结果直给，禁止铺垫。
+- B 场景：痛点升级 + 产品首露 + 质地可视化。
+- C 演示：卖点/款式分述 + 使用场景背书 + 个人偏好收口。
+- D 结果：体感结果可视化 + 克制承诺（不夸大）。
+- E CTA：体验总结 + 情感钩子 + 明确购买动作指引。
+- 常量层：道具、场景、屏幕常驻文字、口播音色、BGM、竖屏真人近景——
+  全部视为「不可变量」，除非我明确把常量层也列为变量位。
+
+# 二、单变量替换规则（裂变核心）
+1. 只改写「本次变量位」对应的段落，其余四段必须逐字沿用母带原文。
+2. 被替换段落必须继承母带该段的：时长、unit 数量、镜头节奏、屏幕文字位置。
+3. 每生成一条，同时输出「基线条」（该变量位沿用母带原版），供对照测试。
+4. 禁止一次替换两个及以上变量位；如我要求多变量，先拒绝并提示拆分轮次。
+
+# 三、标签对齐规则（防语义断裂）
+为每条素材标注两个标签，拼接时只允许同标签或上位标签：
+- 部位/对象标签：
+- 场景标签：
+若我指定的组合标签冲突（例如钩子是「腿部」而结果段是「私密护理」），
+必须停止生成并列出冲突原因，不得硬拼。
+「全身/通用」为上位标签，可与任意标签拼接，优先级最高。
+
+# 四、忠实性与合规（硬性）
+1. 只允许使用【SKU 事实清单】中的成分、功效、规格、价格；清单外一律不得出现。
+2. 母带中标注 [未听清]/[未核实] 的口播，不得当作事实沿用，需重写为不涉具体功效的表述。
+3. 禁止医疗化承诺：不得出现治疗、杀菌消炎、治病、根治、孕期可用、妇科病症改善等表述；
+   仅可使用「清洁、清爽、舒适、气味、温和」等体感词。
+4. 禁止跨品类串味：不得把其他 SKU 的卖点（如脱毛、眼膜、冰感、刮片）写入本 SKU。
+5. 无价格信息时不得自行补价格、倒计时、限时话术。
+
+# 五、输出格式（严格照此结构）
+【第 1 部分｜拼接总表】
+
+| 编号 | 变量位版本 | 时长 | 部位标签 | 场景标签 | 命名 |
+命名规范：{SKU}_{A01}_{B01}_{C01}_{D01}_{E01}_{日期}_v1
+（未替换的段位沿用母带编号，替换段按新序号递增）
+
+【第 2 部分｜逐条分镜】
+每条按 unit 逐条列出：时间轴（精确到 0.00–0.00 秒）｜画面｜口播（目标语言）｜中文对照｜屏幕文字
+时长必须与母带该段完全一致，误差 ≤0.2 秒。
+
+【第 3 部分｜测试备注】
+- 本批为第  轮单变量测试，固定段：
+- 基线条编号：
+- 判定门槛：消耗 ≥3–5 倍目标 CPA；3 秒播放率不低于同组中位数；
+  CPA 与日均消耗综合排序；基线全程在线作对照。
+- 禁止上线组合：`;
+
+    function buildPrompt() {
+      const masterCard = document.getElementById('masterCard').value.trim();
+      const skuFacts = document.getElementById('skuFacts').value.trim();
+      const variableSlot = document.getElementById('variableSlot').value.trim();
+      const generateCount = document.getElementById('generateCount').value.trim();
+      const durationConstraint = document.getElementById('durationConstraint').value.trim();
+      const targetLang = document.getElementById('targetLang').value.trim();
+      const extraNotes = document.getElementById('extraNotes').value.trim();
+
+      if (!masterCard || !skuFacts || !variableSlot || !generateCount || !durationConstraint) {
+        alert('⚠️ 缺失必要输入项！请先完整填写第 1 至 6 项内容（避免触发 AI 追问）。');
+        return null;
+      }
+
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const fullPrompt = `${SYSTEM_RULES}
+
+# 本次执行输入（全部已提供，请直接按格式生成）
+1. 母带结构卡：
+${masterCard}
+
+2. SKU 事实清单：
+${skuFacts}
+
+3. 本次变量位：${variableSlot}
+4. 生成条数：${generateCount} 条变体（另附 1 条基线条作对照）
+5. 时长约束：${durationConstraint}
+6. 语言：${targetLang}
+7. 补充说明/日期参考：${extraNotes || '无额外指定'}（今日日期参考：${today}）`;
+
+      document.getElementById('outputPrompt').value = fullPrompt;
+      return fullPrompt;
+    }
+
+    function copyPrompt() {
+      const promptBox = document.getElementById('outputPrompt');
+      if (!promptBox.value.trim()) {
+        const generated = buildPrompt();
+        if (!generated) return;
+      }
+      promptBox.select();
+      navigator.clipboard.writeText(promptBox.value).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.innerText = '✅ 已复制！快去粘贴给 AI';
+        btn.classList.replace('bg-slate-900', 'bg-emerald-600');
+        setTimeout(() => {
+          btn.innerText = '一键复制指令';
+          btn.classList.replace('bg-emerald-600', 'bg-slate-900');
+        }, 2500);
+      });
+    }
+
+    async function callLLMDirectly() {
+      const prompt = buildPrompt();
+      if (!prompt) return;
+
+      const endpoint = document.getElementById('apiEndpoint').value.trim();
+      const model = document.getElementById('apiModel').value.trim();
+      const apiKey = document.getElementById('apiKey').value.trim();
+
+      if (!apiKey) {
+        alert('请先填写你的 API Key（如 sk-...），或者直接点击上方「一键复制指令」粘贴到任意网页版 AI 中免费使用！');
+        return;
+      }
+
+      const btn = document.getElementById('runApiBtn');
+      const resultWrapper = document.getElementById('aiResultWrapper');
+      const resultBox = document.getElementById('aiResultBox');
+
+      btn.disabled = true;
+      btn.innerText = '⏳ 正在严格按规则生成分镜脚本，请稍候...';
+      resultWrapper.classList.remove('hidden');
+      resultBox.innerText = '生成中...';
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.3
+          })
+        });
+
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error.message || '接口返回错误');
+        }
+        resultBox.innerText = data.choices[0].message.content;
+      } catch (err) {
+        resultBox.innerText = '❌ 请求失败：' + err.message + '\n\n建议检查 API 地址与 Key 是否正确，或直接使用上方的「一键复制指令」功能。';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🚀 直接在网页内生成分镜脚本';
+      }
+    }
+
+    function copyAiResult() {
+      const text = document.getElementById('aiResultBox').innerText;
+      navigator.clipboard.writeText(text).then(() => alert('✅ 分镜脚本已复制到剪贴板！'));
+    }
+
+    function fillExampleData() {
+      document.getElementById('masterCard').value = `【母带编号】DEO01_A01_B01_C01_D01_E01
+【常量层】室内卫生间镜前竖屏真人近景、自然光、轻快节奏纯音乐BGM、屏幕顶部常驻白色黑边字幕、女声亲切口播。
+- A01 钩子 (0.00-3.00s, 1 unit): 画面：女生抬手闻腋下皱眉；口播："Sobrang init ba, mabilis bumaho ang kili-kili?"（天气太热，腋下很快有异味？）；屏幕文字："Mabilis bumaho ang kili-kili?"
+- B01 场景 (3.00-7.00s, 2 units): 画面：拿出滚珠涂抹，展示透明水润质地；口播："Gamitin mo itong deodorant roll-on, magaan ang texture at mabilis ma-absorb."（用这款滚珠香体露，质地轻盈吸收快）；屏幕文字："Magaan & fast-absorbing"
+- C01 演示 (7.00-12.00s, 2 units): 画面：穿白衬衫出门坐吉普尼/通勤对比；口播："Kahit buong araw sa labas, komportable pa rin at hindi malagkit sa damit."（就算全天在外面依然舒适，不粘衣服）；屏幕文字："Komportable buong araw"
+- D01 结果 (12.00-15.00s, 1 unit): 画面：傍晚回家抬手微笑；口播："Fresh at confident pa rin hanggang hapon."（直到傍晚依然感觉清爽自信）；屏幕文字："Fresh hanggang hapon"
+- E01 CTA (15.00-18.00s, 1 unit): 画面：手指指向左下角小黄车；口播："I-check mo na ang yellow basket bago maubos!"（趁还没断货快点击小黄车看看吧！）；屏幕文字："Check yellow basket 👇"`;
+
+      document.getElementById('skuFacts').value = `- SKU编号：DEO01
+- 产品名称：植物清香走珠香体露（Roll-On Deodorant）
+- 规格：50ml
+- 成分：含绿茶提取物、芦荟提取物（无酒精）
+- 合规功效：保持腋下清洁清爽、带来舒适体香、温和不刺激、不留白渍
+- 价格：无价格信息（严禁自行编造价格与倒计时）`;
+
+      document.getElementById('variableSlot').value = 'A 钩子（0秒入题/痛点或结果直给）';
+      document.getElementById('generateCount').value = '2';
+      document.getElementById('durationConstraint').value = '总时长 18.00s，本次替换的 A 段严格锁定 3.00s（1个unit）';
+      document.getElementById('targetLang').value = '菲律宾语 (PH - Tagalog / Taglish)';
+      document.getElementById('extraNotes').value = '部位标签：腋下；场景标签：通勤/日常户外';
+    }
+
+    function clearAllInputs() {
+      document.getElementById('masterCard').value = '';
+      document.getElementById('skuFacts').value = '';
+      document.getElementById('variableSlot').value = '';
+      document.getElementById('generateCount').value = '3';
+      document.getElementById('durationConstraint').value = '';
+      document.getElementById('extraNotes').value = '';
+      document.getElementById('outputPrompt').value = '';
+    }
+  </script>
+</body>
+</html>
