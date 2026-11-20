@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>东南亚 TK 短视频广告「裂变脚本生成器」</title>
+  <title>东南亚（TH/MY/PH/VN）TK 短视频广告「视频拆解 + 裂变脚本工作台」</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
@@ -17,13 +17,17 @@
   <header class="bg-slate-900 text-white shadow-md sticky top-0 z-10">
     <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <span class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded text-sm">SEA-TK 投流工具</span>
-        <h1 class="text-lg md:text-xl font-bold tracking-wide">东南亚短视频广告「裂变脚本生成器」</h1>
+        <span class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded text-sm">TH / MY / PH / VN</span>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide">东南亚短视频广告「母带拆解 ➔ 裂变生成」工作台</h1>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="fillExampleData()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded transition">
-          ✨ 填入示例数据体验
-        </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="exampleMarketSelect" onchange="fillExampleData(this.value)" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded outline-none cursor-pointer">
+          <option value="">✨ 选择市场填入示例...</option>
+          <option value="PH">🇵🇭 填入菲律宾 (PH) 示例</option>
+          <option value="TH">🇹🇭 填入泰国 (TH) 示例</option>
+          <option value="VN">🇻🇳 填入越南 (VN) 示例</option>
+          <option value="MY">🇲🇾 填入马来 (MY) 示例</option>
+        </select>
         <button onclick="clearAllInputs()" class="text-xs bg-slate-800 hover:bg-red-900/60 text-slate-300 border border-slate-700 px-3 py-1.5 rounded transition">
           清空重置
         </button>
@@ -31,153 +35,328 @@
     </div>
   </header>
 
-  <!-- 主工作区 -->
-  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
 
-    <!-- 左侧：输入表单区 (占7列) -->
-    <div class="lg:col-span-7 space-y-5">
+    <!-- ========================================================= -->
+    <!-- 第一步：新增模块 —— 视频自动拆解母带结构卡                 -->
+    <!-- ========================================================= -->
+    <section class="bg-white rounded-2xl shadow-sm border-2 border-indigo-100 overflow-hidden">
+      <div class="bg-indigo-600 text-white px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-white text-indigo-700 font-extrabold text-xs px-2 py-0.5 rounded">STEP 1</span>
+          <h2 class="font-bold text-base">投入母带视频 ➔ 自动拆解【母带结构卡】</h2>
+        </div>
+        <span class="text-xs text-indigo-100">支持泰 / 马 / 菲 / 越四国画面节奏、口播转录、unit切分与常量层提取</span>
+      </div>
+
+      <div class="p-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 左侧：上传视频与接口设置 -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/40 text-center">
+            <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/webm" class="hidden" onchange="handleVideoSelect(event)" />
+            <label for="videoFileInput" class="cursor-pointer flex flex-col items-center justify-center space-y-1.5">
+              <span class="text-2xl">🎬</span>
+              <span id="videoFileName" class="text-sm font-bold text-indigo-900">点击选择要拆解的爆款母带视频 (.mp4 / .mov)</span>
+              <span class="text-xs text-slate-500">支持泰国 / 马来 / 菲律宾 / 越南语视频，建议 ≤ 20MB</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">母带编号前缀（选填）</label>
+              <input id="videoSkuPrefix" type="text" placeholder="例如：DEO01" class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Gemini API Key（直连视频解析必填）</label>
+              <input id="geminiApiKey" type="password" placeholder="粘贴 AIzaSy... 开头的密钥" class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2.5 pt-1">
+            <button id="analyzeVideoBtn" onclick="analyzeVideoWithGemini()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow transition">
+              🤖 一键解析视频并自动填入下方【母带结构卡】
+            </button>
+            <button id="copyDeconstructBtn" onclick="copyDeconstructPrompt()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium py-2.5 px-3 rounded-lg border border-slate-300 transition" title="没有API Key？复制指令去网页版Gemini上传视频即可">
+              📋 复制拆解指令（免费手动版）
+            </button>
+          </div>
+          <p id="videoStatusText" class="text-xs text-slate-500 hidden"></p>
+        </div>
+
+        <!-- 右侧：拆解结果预览 -->
+        <div class="lg:col-span-6 flex flex-col">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-slate-700">📄 视频拆解结果预览（会自动同步至第二步）：</span>
+            <button onclick="syncToStep2()" class="text-xs text-indigo-600 hover:underline font-medium">手动同步至下方 ↓</button>
+          </div>
+          <textarea id="deconstructPreview" rows="6" placeholder="上传视频并点击解析后，AI 将严格按照【常量层 + A钩子 + B场景 + C演示 + D结果 + E-CTA】格式拆解时间轴、画面、口播与屏幕文字（听不清处会自动标注 [未听清] 防幻觉）..."
+            class="w-full text-xs p-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-indigo-500 custom-scrollbar"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 第二步：原有模块 —— 单变量裂变脚本生成器                   -->
+    <!-- ========================================================= -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- 规则提示卡片 -->
-      <div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded-r-lg text-xs text-amber-900 space-y-1">
-        <p class="font-bold">⚠️ 系统已内置硬性约束规则：</p>
-        <p>1. <strong>结构锁定</strong>：A钩子 + B场景 + C演示 + D结果 + E-CTA + 常量层（仅改写选中的单个变量位）。</p>
-        <p>2. <strong>忠实合规</strong>：严禁超纲功效、医疗化承诺（治疗/杀菌/消炎/孕期等）及跨品类串味。</p>
-      </div>
-
-      <!-- 1. 母带结构卡 -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex justify-between items-center mb-2">
-          <label class="font-bold text-slate-800 text-sm">1. 母带结构卡 <span class="text-red-500">*</span></label>
-          <span class="text-xs text-slate-400">包含 A/B/C/D/E 原文、时长、unit 节奏及常量层</span>
-        </div>
-        <textarea id="masterCard" rows="6" placeholder="请粘贴已拆解好的母带结构卡（包含各段编号、时长、口播、画面、屏幕文字及常量层说明）..."
-          class="w-full text-sm p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none custom-scrollbar"></textarea>
-      </div>
-
-      <!-- 2. SKU 事实清单 -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex justify-between items-center mb-2">
-          <label class="font-bold text-slate-800 text-sm">2. SKU 事实清单 <span class="text-red-500">*</span></label>
-          <span class="text-xs text-slate-400">仅允许清单内事实出现，无价格时勿自行补充</span>
-        </div>
-        <textarea id="skuFacts" rows="4" placeholder="请填写本品 SKU 名称/编号、核心成分、合规体感功效、规格、价格（如无价格请注明“无价格信息”）..."
-          class="w-full text-sm p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none custom-scrollbar"></textarea>
-      </div>
-
-      <!-- 3-6. 参数控制面板 -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        <!-- 3. 本次变量位（强制单选） -->
-        <div>
-          <label class="block font-bold text-slate-800 text-sm mb-1.5">3. 本次变量位（仅限1个） <span class="text-red-500">*</span></label>
-          <select id="variableSlot" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
-            <option value="">-- 请选择本次替换的唯一段位 --</option>
-            <option value="A 钩子（0秒入题/痛点或结果直给）">A 钩子（0秒入题/痛点或结果直给）</option>
-            <option value="B 场景（痛点升级/产品首露/质地可视化）">B 场景（痛点升级/产品首露/质地可视化）</option>
-            <option value="C 演示（卖点分述/使用场景背书/偏好收口）">C 演示（卖点分述/使用场景背书/偏好收口）</option>
-            <option value="D 结果（体感结果可视化/克制承诺）">D 结果（体感结果可视化/克制承诺）</option>
-            <option value="E CTA（体验总结/情感钩子/购买指引）">E CTA（体验总结/情感钩子/购买指引）</option>
-            <option value="常量层（仅限明确指定替换的常量元素）">常量层（需在下方补充具体替换项）</option>
-          </select>
+      <!-- 左侧：输入表单区 (占7列) -->
+      <div class="lg:col-span-7 space-y-5">
+        <div class="flex items-center gap-2">
+          <span class="bg-emerald-600 text-white font-extrabold text-xs px-2 py-0.5 rounded">STEP 2</span>
+          <h2 class="font-bold text-base text-slate-900">锁定母带结构 ➔ 单变量批量裂变（TH / MY / PH / VN）</h2>
         </div>
 
-        <!-- 6. 目标语言 -->
-        <div>
-          <label class="block font-bold text-slate-800 text-sm mb-1.5">6. 目标市场 / 语言 <span class="text-red-500">*</span></label>
-          <select id="targetLang" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
-            <option value="菲律宾语 (PH - Tagalog / Taglish)">🇵🇭 菲律宾语 (PH - Tagalog / Taglish)</option>
-            <option value="泰语 (TH - ภาษาไทย)">🇹🇭 泰语 (TH - ภาษาไทย)</option>
-            <option value="越南语 (VN - Tiếng Việt)">🇻🇳 越南语 (VN - Tiếng Việt)</option>
-            <option value="马来语 (MY - Bahasa Melayu)">🇲🇾 马来语 (MY - Bahasa Melayu)</option>
-          </select>
+        <!-- 规则提示卡片 -->
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded-r-lg text-xs text-amber-900 space-y-1">
+          <p class="font-bold">⚠️ 系统已内置硬性约束规则：</p>
+          <p>1. <strong>结构锁定</strong>：A钩子 + B场景 + C演示 + D结果 + E-CTA + 常量层（仅改写选中的单个变量位）。</p>
+          <p>2. <strong>忠实合规</strong>：严禁超纲功效、医疗化承诺（治疗/杀菌/消炎/孕期等）及跨品类串味。</p>
         </div>
 
-        <!-- 4. 生成条数 -->
-        <div>
-          <label class="block font-bold text-slate-800 text-sm mb-1.5">4. 生成变体条数 <span class="text-red-500">*</span></label>
-          <input id="generateCount" type="number" min="1" max="10" value="3"
-            class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+        <!-- 1. 母带结构卡 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center mb-2">
+            <label class="font-bold text-slate-800 text-sm">1. 母带结构卡 <span class="text-red-500">*</span></label>
+            <span class="text-xs text-emerald-600 font-medium">可由上方 Step 1 自动填入，或手动粘贴</span>
+          </div>
+          <textarea id="masterCard" rows="6" placeholder="请粘贴已拆解好的母带结构卡（包含各段编号、时长、口播、画面、屏幕文字及常量层说明）..."
+            class="w-full text-sm p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none custom-scrollbar"></textarea>
         </div>
 
-        <!-- 5. 时长约束 -->
-        <div>
-          <label class="block font-bold text-slate-800 text-sm mb-1.5">5. 时长约束 <span class="text-red-500">*</span></label>
-          <input id="durationConstraint" type="text" placeholder="例如：总时长 18s，A段严格锁定 3.0s"
-            class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+        <!-- 2. SKU 事实清单 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center mb-2">
+            <label class="font-bold text-slate-800 text-sm">2. SKU 事实清单 <span class="text-red-500">*</span></label>
+            <span class="text-xs text-slate-400">仅允许清单内事实出现，无价格时勿自行补充</span>
+          </div>
+          <textarea id="skuFacts" rows="4" placeholder="请填写本品 SKU 名称/编号、核心成分、合规体感功效、规格、价格（如无价格请注明“无价格信息”）..."
+            class="w-full text-sm p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none custom-scrollbar"></textarea>
         </div>
 
-        <!-- 补充标签/方向说明（选填） -->
-        <div class="md:col-span-2">
-          <label class="block font-bold text-slate-800 text-sm mb-1.5">补充说明 / 指定标签方向（选填）</label>
-          <input id="extraNotes" type="text" placeholder="例如：指定部位标签为「腋下」、场景标签为「通勤出汗」，或指定今日日期"
-            class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+        <!-- 3-6. 参数控制面板 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-800 text-sm mb-1.5">3. 本次变量位（仅限1个） <span class="text-red-500">*</span></label>
+            <select id="variableSlot" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+              <option value="">-- 请选择本次替换的唯一段位 --</option>
+              <option value="A 钩子（0秒入题/痛点或结果直给）">A 钩子（0秒入题/痛点或结果直给）</option>
+              <option value="B 场景（痛点升级/产品首露/质地可视化）">B 场景（痛点升级/产品首露/质地可视化）</option>
+              <option value="C 演示（卖点分述/使用场景背书/偏好收口）">C 演示（卖点分述/使用场景背书/偏好收口）</option>
+              <option value="D 结果（体感结果可视化/克制承诺）">D 结果（体感结果可视化/克制承诺）</option>
+              <option value="E CTA（体验总结/情感钩子/购买指引）">E CTA（体验总结/情感钩子/购买指引）</option>
+              <option value="常量层（仅限明确指定替换的常量元素）">常量层（需在下方补充具体替换项）</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-800 text-sm mb-1.5">6. 目标市场 / 语言 <span class="text-red-500">*</span></label>
+            <select id="targetLang" class="w-full text-sm p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+              <option value="泰语 (TH - ภาษาไทย)">🇹🇭 泰语 (TH - ภาษาไทย)</option>
+              <option value="马来语 (MY - Bahasa Melayu)">🇲🇾 马来语 (MY - Bahasa Melayu)</option>
+              <option value="菲律宾语 (PH - Tagalog / Taglish)">🇵🇭 菲律宾语 (PH - Tagalog / Taglish)</option>
+              <option value="越南语 (VN - Tiếng Việt)">🇻🇳 越南语 (VN - Tiếng Việt)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-800 text-sm mb-1.5">4. 生成变体条数 <span class="text-red-500">*</span></label>
+            <input id="generateCount" type="number" min="1" max="10" value="3"
+              class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-800 text-sm mb-1.5">5. 时长约束 <span class="text-red-500">*</span></label>
+            <input id="durationConstraint" type="text" placeholder="例如：总时长 18s，A段严格锁定 3.0s"
+              class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block font-bold text-slate-800 text-sm mb-1.5">补充说明 / 指定标签方向（选填）</label>
+            <input id="extraNotes" type="text" placeholder="例如：指定部位标签为「腋下」、场景标签为「通勤出汗」，或指定今日日期"
+              class="w-full text-sm p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+          </div>
         </div>
-      </div>
 
-      <!-- 操作按钮组 -->
-      <div class="flex flex-wrap gap-3">
-        <button onclick="buildPrompt()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-5 rounded-xl shadow transition cursor-pointer">
-          ⚡ 生成完整 AI 指令（零成本复制使用）
-        </button>
-      </div>
-
-    </div>
-
-    <!-- 右侧：指令预览与 API 直连区 (占5列) -->
-    <div class="lg:col-span-5 space-y-5">
-      
-      <!-- 1. 生成的完整提示词窗口 -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="font-bold text-slate-800 text-sm">📋 已封装的完整指令（含全部规则）</h2>
-          <button id="copyBtn" onclick="copyPrompt()" class="bg-slate-900 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
-            一键复制指令
+        <div class="flex flex-wrap gap-3">
+          <button onclick="buildPrompt()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-5 rounded-xl shadow transition cursor-pointer">
+            ⚡ 生成完整 AI 裂变指令（零成本复制使用）
           </button>
         </div>
-        <textarea id="outputPrompt" rows="13" readonly placeholder="在左侧填写完 6 项必要信息后，点击「生成完整 AI 指令」，此处将自动拼装好包含你所有规则的完整提示词。点击右上角「一键复制指令」，直接粘贴给 ChatGPT / Claude / Gemini 即可！"
-          class="w-full text-xs font-mono bg-slate-900 text-emerald-300 p-3.5 rounded-lg outline-none custom-scrollbar leading-relaxed"></textarea>
       </div>
 
-      <!-- 2. 进阶：直连 AI 接口直接出脚本（可选） -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
-        <div class="flex items-center justify-between">
-          <h2 class="font-bold text-slate-800 text-sm">🤖 进阶：直接调用 AI 接口出分镜（可选）</h2>
-          <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">密钥仅存本地浏览器</span>
-        </div>
-        <p class="text-xs text-slate-500">如果你有 OpenAI / DeepSeek / 兼容接口的 API Key，填入后可直接在当前网页生成分镜表格，无需跳转。</p>
-        
-        <div class="grid grid-cols-1 gap-2.5">
-          <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions" placeholder="API 接口地址 (如 https://api.openai.com/v1/chat/completions)"
-            class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
-          <div class="grid grid-cols-2 gap-2">
-            <input id="apiModel" type="text" value="deepseek-chat" placeholder="模型名 (如 gpt-4o / deepseek-chat)"
-              class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
-            <input id="apiKey" type="password" placeholder="粘贴你的 API Key (sk-...)"
-              class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+      <!-- 右侧：指令预览与 API 直连区 (占5列) -->
+      <div class="lg:col-span-5 space-y-5 lg:pt-8">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="font-bold text-slate-800 text-sm">📋 已封装的完整裂变指令（含全部规则）</h2>
+            <button id="copyBtn" onclick="copyPrompt()" class="bg-slate-900 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
+              一键复制指令
+            </button>
           </div>
+          <textarea id="outputPrompt" rows="13" readonly placeholder="填写完左侧 6 项必要信息后，点击「生成完整 AI 裂变指令」，此处将自动拼装好包含你所有规则的完整提示词。"
+            class="w-full text-xs font-mono bg-slate-900 text-emerald-300 p-3.5 rounded-lg outline-none custom-scrollbar leading-relaxed"></textarea>
         </div>
 
-        <button id="runApiBtn" onclick="callLLMDirectly()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition">
-          🚀 直接在网页内生成分镜脚本
-        </button>
-
-        <!-- AI 返回结果显示区 -->
-        <div id="aiResultWrapper" class="hidden mt-3">
-          <div class="flex justify-between items-center mb-1.5">
-            <span class="text-xs font-bold text-emerald-700">✅ 生成结果：</span>
-            <button onclick="copyAiResult()" class="text-xs text-slate-600 hover:text-slate-900 underline">复制分镜结果</button>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-slate-800 text-sm">🤖 进阶：直接调用 AI 接口出裂变分镜（可选）</h2>
+            <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">密钥仅存本地浏览器</span>
           </div>
-          <div id="aiResultBox" class="text-xs bg-slate-50 border border-slate-200 p-3 rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap custom-scrollbar leading-relaxed"></div>
+          <p class="text-xs text-slate-500">支持 OpenAI / DeepSeek / 兼容接口的 API Key，填入后可直接在当前网页生成裂变脚本。</p>
+          
+          <div class="grid grid-cols-1 gap-2.5">
+            <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions" placeholder="API 接口地址"
+              class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+            <div class="grid grid-cols-2 gap-2">
+              <input id="apiModel" type="text" value="deepseek-chat" placeholder="模型名 (如 deepseek-chat)"
+                class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+              <input id="apiKey" type="password" placeholder="粘贴你的 API Key (sk-...)"
+                class="w-full text-xs p-2 border border-slate-300 rounded-lg outline-none" />
+            </div>
+          </div>
+
+          <button id="runApiBtn" onclick="callLLMDirectly()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition">
+            🚀 直接在网页内生成裂变分镜脚本
+          </button>
+
+          <div id="aiResultWrapper" class="hidden mt-3">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-xs font-bold text-emerald-700">✅ 生成结果：</span>
+              <button onclick="copyAiResult()" class="text-xs text-slate-600 hover:text-slate-900 underline">复制分镜结果</button>
+            </div>
+            <div id="aiResultBox" class="text-xs bg-slate-50 border border-slate-200 p-3 rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap custom-scrollbar leading-relaxed"></div>
+          </div>
         </div>
       </div>
+    </section>
 
-    </div>
   </main>
 
   <script>
-    // 核心角色与规则模板（100% 忠实还原你的设定，已更新为 PH）
+    // ==========================================
+    // Step 1: 视频自动拆解母带结构卡逻辑（覆盖 TH/MY/PH/VN）
+    // ==========================================
+    const DECONSTRUCT_PROMPT = `你是东南亚（TH/MY/PH/VN）短视频广告「母带结构拆解专家」。
+请仔细观看并聆听我提供的这条短视频广告（语言可能是泰语、马来语、菲律宾语/Taglish 或越南语），严格按以下结构输出一份可直接用于单变量裂变的【母带结构卡】：
+
+【母带编号】{SKU前缀}_A01_B01_C01_D01_E01（总时长：XX.XXs）
+【常量层】详细记录贯穿全片的不可变元素：拍摄环境/场景、道具、景别（如竖屏真人近景）、光线、BGM风格、屏幕常驻字幕位置与样式、口播音色与语速风格。
+
+严格将视频切分为以下 5 个结构段（标注精确起止时间与镜头 unit 数量）：
+- A01 钩子 (0.00-X.XXs, X unit): 画面：（描述镜头与动作）｜口播："（原语言逐字转录）"（中文翻译）｜屏幕文字："（画面贴字原文）"
+- B01 场景 (X.XX-X.XXs, X units): 画面：...｜口播：...｜屏幕文字：...
+- C01 演示 (X.XX-X.XXs, X units): 画面：...｜口播：...｜屏幕文字：...
+- D01 结果 (X.XX-X.XXs, X units): 画面：...｜口播：...｜屏幕文字：...
+- E01 CTA (X.XX-X.XXs, X unit): 画面：...｜口播：...｜屏幕文字：...
+
+【硬性拆解纪律】
+1. 听不清的口播或看不清的包装小字，必须严格标注为 [未听清] 或 [未核实]，绝不允许脑补猜测。
+2. 时间轴必须首尾相接、严丝合缝，精确到小数点后两位。
+3. 直接输出【母带结构卡】正文，不要任何开场白或总结。`;
+
+    let selectedVideoFile = null;
+
+    function handleVideoSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      selectedVideoFile = file;
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      document.getElementById('videoFileName').innerText = `已选择：${file.name} (${sizeMB} MB)`;
+    }
+
+    function copyDeconstructPrompt() {
+      const prefix = document.getElementById('videoSkuPrefix').value.trim() || 'SKU01';
+      const promptText = DECONSTRUCT_PROMPT.replace('{SKU前缀}', prefix);
+      navigator.clipboard.writeText(promptText).then(() => {
+        const btn = document.getElementById('copyDeconstructBtn');
+        btn.innerText = '✅ 已复制拆解指令！';
+        setTimeout(() => btn.innerText = '📋 复制拆解指令（免费手动版）', 2500);
+      });
+    }
+
+    function syncToStep2() {
+      const val = document.getElementById('deconstructPreview').value.trim();
+      if (!val) {
+        alert('拆解预览框目前为空，请先拆解视频或粘贴内容。');
+        return;
+      }
+      document.getElementById('masterCard').value = val;
+      alert('✅ 已同步填入下方【1. 母带结构卡】！');
+    }
+
+    async function analyzeVideoWithGemini() {
+      const apiKey = document.getElementById('geminiApiKey').value.trim();
+      if (!selectedVideoFile) {
+        alert('请先点击虚线框选择一个本地视频文件（.mp4 / .mov）！');
+        return;
+      }
+      if (!apiKey) {
+        alert('直接解析视频需要填入 Google Gemini API Key（AIzaSy...）。\n\n如果你没有 Key，可以点击旁边的「复制拆解指令（免费手动版）」，去网页版 Gemini 上传视频免费拆解后粘贴回来！');
+        return;
+      }
+      if (selectedVideoFile.size > 20 * 1024 * 1024) {
+        alert('⚠️ 视频文件超过 20MB，浏览器直传可能会超时。建议压缩到 20MB 以内，或使用「复制拆解指令」去网页版上传。');
+        return;
+      }
+
+      const btn = document.getElementById('analyzeVideoBtn');
+      const statusText = document.getElementById('videoStatusText');
+      const previewBox = document.getElementById('deconstructPreview');
+      const prefix = document.getElementById('videoSkuPrefix').value.trim() || 'SKU01';
+
+      btn.disabled = true;
+      btn.innerText = '⏳ 正在上传并逐帧解析视频（约需15-30秒）...';
+      statusText.classList.remove('hidden');
+      statusText.innerText = '正在读取视频画面、转录东南亚多语言口播与卡点时间轴，请勿关闭页面...';
+
+      try {
+        const base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(selectedVideoFile);
+        });
+
+        const promptText = DECONSTRUCT_PROMPT.replace('{SKU前缀}', prefix);
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { inline_data: { mime_type: selectedVideoFile.type || 'video/mp4', data: base64Data } },
+                { text: promptText }
+              ]
+            }],
+            generationConfig: { temperature: 0.2 }
+          })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message || 'Gemini 接口返回错误');
+
+        const resultText = data.candidates[0].content.parts[0].text;
+        previewBox.value = resultText;
+        document.getElementById('masterCard').value = resultText;
+
+        statusText.innerText = '✅ 视频拆解完成！已自动同步填入下方 Step 2 的【1. 母带结构卡】中。';
+        statusText.classList.replace('text-slate-500', 'text-emerald-600');
+      } catch (err) {
+        statusText.innerText = '❌ 解析失败：' + err.message;
+        statusText.classList.replace('text-slate-500', 'text-red-600');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🤖 一键解析视频并自动填入下方【母带结构卡】';
+      }
+    }
+
+    // ==========================================
+    // Step 2: 单变量裂变脚本生成器逻辑（TH/MY/PH/VN）
+    // ==========================================
     const SYSTEM_RULES = `# 角色
-你是东南亚（TH/VN/PH/MY）短视频广告「裂变脚本生成器」。你的唯一任务是：
+你是东南亚（TH/MY/PH/VN）短视频广告「裂变脚本生成器」。你的唯一任务是：
 基于一份已拆解好的【母带结构卡】，在锁定结构的前提下，只替换指定的变量位，
 批量产出可直接拍摄的分镜脚本。你不做创意发散，只做受约束的替换生成。
 
@@ -301,7 +480,7 @@ ${skuFacts}
       const resultBox = document.getElementById('aiResultBox');
 
       btn.disabled = true;
-      btn.innerText = '⏳ 正在严格按规则生成分镜脚本，请稍候...';
+      btn.innerText = '⏳ 正在严格按规则生成裂变脚本，请稍候...';
       resultWrapper.classList.remove('hidden');
       resultBox.innerText = '生成中...';
 
@@ -314,23 +493,19 @@ ${skuFacts}
           },
           body: JSON.stringify({
             model: model,
-            messages: [
-              { role: 'user', content: prompt }
-            ],
+            messages: [{ role: 'user', content: prompt }],
             temperature: 0.3
           })
         });
 
         const data = await response.json();
-        if (data.error) {
-          throw new Error(data.error.message || '接口返回错误');
-        }
+        if (data.error) throw new Error(data.error.message || '接口返回错误');
         resultBox.innerText = data.choices[0].message.content;
       } catch (err) {
-        resultBox.innerText = '❌ 请求失败：' + err.message + '\n\n建议检查 API 地址与 Key 是否正确，或直接使用上方的「一键复制指令」功能。';
+        resultBox.innerText = '❌ 请求失败：' + err.message;
       } finally {
         btn.disabled = false;
-        btn.innerText = '🚀 直接在网页内生成分镜脚本';
+        btn.innerText = '🚀 直接在网页内生成裂变分镜脚本';
       }
     }
 
@@ -339,30 +514,71 @@ ${skuFacts}
       navigator.clipboard.writeText(text).then(() => alert('✅ 分镜脚本已复制到剪贴板！'));
     }
 
-    function fillExampleData() {
-      document.getElementById('masterCard').value = `【母带编号】DEO01_A01_B01_C01_D01_E01
+    function fillExampleData(market) {
+      if (!market) return;
+
+      const examples = {
+        PH: {
+          lang: '菲律宾语 (PH - Tagalog / Taglish)',
+          card: `【母带编号】DEO01_A01_B01_C01_D01_E01（总时长：18.00s）
 【常量层】室内卫生间镜前竖屏真人近景、自然光、轻快节奏纯音乐BGM、屏幕顶部常驻白色黑边字幕、女声亲切口播。
 - A01 钩子 (0.00-3.00s, 1 unit): 画面：女生抬手闻腋下皱眉；口播："Sobrang init ba, mabilis bumaho ang kili-kili?"（天气太热，腋下很快有异味？）；屏幕文字："Mabilis bumaho ang kili-kili?"
 - B01 场景 (3.00-7.00s, 2 units): 画面：拿出滚珠涂抹，展示透明水润质地；口播："Gamitin mo itong deodorant roll-on, magaan ang texture at mabilis ma-absorb."（用这款滚珠香体露，质地轻盈吸收快）；屏幕文字："Magaan & fast-absorbing"
 - C01 演示 (7.00-12.00s, 2 units): 画面：穿白衬衫出门坐吉普尼/通勤对比；口播："Kahit buong araw sa labas, komportable pa rin at hindi malagkit sa damit."（就算全天在外面依然舒适，不粘衣服）；屏幕文字："Komportable buong araw"
 - D01 结果 (12.00-15.00s, 1 unit): 画面：傍晚回家抬手微笑；口播："Fresh at confident pa rin hanggang hapon."（直到傍晚依然感觉清爽自信）；屏幕文字："Fresh hanggang hapon"
-- E01 CTA (15.00-18.00s, 1 unit): 画面：手指指向左下角小黄车；口播："I-check mo na ang yellow basket bago maubos!"（趁还没断货快点击小黄车看看吧！）；屏幕文字："Check yellow basket 👇"`;
+- E01 CTA (15.00-18.00s, 1 unit): 画面：手指指向左下角小黄车；口播："I-check mo na ang yellow basket bago maubos!"（趁还没断货快点击小黄车看看吧！）；屏幕文字："Check yellow basket 👇"`
+        },
+        TH: {
+          lang: '泰语 (TH - ภาษาไทย)',
+          card: `【母带编号】DEO01_A01_B01_C01_D01_E01（总时长：18.00s）
+【常量层】室内卫生间镜前竖屏真人近景、自然光、轻快节奏纯音乐BGM、屏幕顶部常驻白色黑边字幕、女声亲切口播。
+- A01 钩子 (0.00-3.00s, 1 unit): 画面：女生抬手闻腋下皱眉；口播："อากาศร้อนแบบนี้ รักแร้มีกลิ่นไวใช่ไหม?"（这么热的天气，腋下很快有异味对吧？）；屏幕文字："รักแร้มีกลิ่นไว?"
+- B01 场景 (3.00-7.00s, 2 units): 画面：拿出滚珠涂抹，展示透明水润质地；口播："ลองโรลออนตัวนี้ เนื้อบางเบา ซึมไวมาก"（试试这款滚珠香体露，质地轻薄吸收超快）；屏幕文字："เนื้อบางเบา ซึมไว"
+- C01 演示 (7.00-12.00s, 2 units): 画面：穿白衬衫出门坐BTS通勤对比；口播："ออกไปข้างนอกทั้งวันก็ยังรู้สึกสบาย ไม่เหนียวเหนอะหนะเสื้อ"（出门一整天依然感觉舒适，不粘衣服）；屏幕文字："สบายตัวทั้งวัน"
+- D01 结果 (12.00-15.00s, 1 unit): 画面：傍晚回家抬手微笑；口播："หอมสดชื่น มั่นใจได้จนถึงเย็น"（清香爽洁，自信直到傍晚）；屏幕文字："สดชื่นจนถึงเย็น"
+- E01 CTA (15.00-18.00s, 1 unit): 画面：手指指向左下角小黄车；口播："กดตะกร้าเหลืองด้านล่างได้เลย ก่อนของหมดนะ"（趁还没断货快点下方小黄车吧）；屏幕文字："กดตะกร้าเหลือง 👇"`
+        },
+        VN: {
+          lang: '越南语 (VN - Tiếng Việt)',
+          card: `【母带编号】DEO01_A01_B01_C01_D01_E01（总时长：18.00s）
+【常量层】室内卫生间镜前竖屏真人近景、自然光、轻快节奏纯音乐BGM、屏幕顶部常驻白色黑边字幕、女声亲切口播。
+- A01 钩子 (0.00-3.00s, 1 unit): 画面：女生抬手闻腋下皱眉；口播："Trời nóng thế này, vùng dưới cánh tay dễ có mùi lắm đúng không?"（这么热的天气，腋下很容易有异味对吧？）；屏幕文字："Vùng dưới cánh tay dễ có mùi?"
+- B01 场景 (3.00-7.00s, 2 units): 画面：拿出滚珠涂抹，展示透明水润质地；口播："Dùng ngay lăn khử mùi này, kết cấu mỏng nhẹ thấm cực nhanh."（快用这款滚珠香体露，质地轻薄吸收超快）；屏幕文字："Mỏng nhẹ & thấm nhanh"
+- C01 演示 (7.00-12.00s, 2 units): 画面：穿白衬衫骑摩托出门通勤对比；口播："Hoạt động cả ngày ngoài trời vẫn thoải mái, không bết dính áo."（全天户外活动依然舒适，不粘衣服）；屏幕文字："Thoải mái cả ngày"
+- D01 结果 (12.00-15.00s, 1 unit): 画面：傍晚回家抬手微笑；口播："Cảm giác khô thoáng và tự tin đến tận chiều tối."（直到傍晚依然感觉干爽自信）；屏幕文字："Khô thoáng đến tối"
+- E01 CTA (15.00-18.00s, 1 unit): 画面：手指指向左下角小黄车；口播："Bấm vào giỏ hàng màu vàng ngay kẻo hết nhé!"（趁还没断货快点击小黄车吧！）；屏幕文字："Bấm giỏ hàng vàng 👇"`
+        },
+        MY: {
+          lang: '马来语 (MY - Bahasa Melayu)',
+          card: `【母带编号】DEO01_A01_B01_C01_D01_E01（总时长：18.00s）
+【常量层】室内卫生间镜前竖屏真人近景、自然光、轻快节奏纯音乐BGM、屏幕顶部常驻白色黑边字幕、女声亲切口播。
+- A01 钩子 (0.00-3.00s, 1 unit): 画面：女生抬手闻腋下皱眉；口播："Cuaca panas macam ni, ketiak cepat berbau kan?"（这种大热天，腋下很快有异味对吧？）；屏幕文字："Ketiak cepat berbau?"
+- B01 场景 (3.00-7.00s, 2 units): 画面：拿出滚珠涂抹，展示透明水润质地；口播："Pakai deodorant roll-on ni, tekstur ringan dan cepat meresap."（用这款滚珠香体露，质地轻盈吸收快）；屏幕文字："Ringan & cepat meresap"
+- C01 演示 (7.00-12.00s, 2 units): 画面：穿白衬衫出门通勤对比；口播："Keluar seharian pun masih selesa, tak melekit pada baju."（出门一整天依然舒适，不粘衣服）；屏幕文字："Selesa seharian"
+- D01 结果 (12.00-15.00s, 1 unit): 画面：傍晚回家抬手微笑；口播："Rasa segar dan yakin sampai ke petang."（直到傍晚依然感觉清爽自信）；屏幕文字："Segar sampai petang"
+- E01 CTA (15.00-18.00s, 1 unit): 画面：手指指向左下角小黄车；口播："Tekan beg kuning sekarang sebelum habis stok!"（趁还没断货快点击小黄车吧！）；屏幕文字："Tekan beg kuning 👇"`
+        }
+      };
 
+      const selected = examples[market];
+      document.getElementById('deconstructPreview').value = selected.card;
+      document.getElementById('masterCard').value = selected.card;
       document.getElementById('skuFacts').value = `- SKU编号：DEO01
 - 产品名称：植物清香走珠香体露（Roll-On Deodorant）
 - 规格：50ml
 - 成分：含绿茶提取物、芦荟提取物（无酒精）
 - 合规功效：保持腋下清洁清爽、带来舒适体香、温和不刺激、不留白渍
 - 价格：无价格信息（严禁自行编造价格与倒计时）`;
-
       document.getElementById('variableSlot').value = 'A 钩子（0秒入题/痛点或结果直给）';
       document.getElementById('generateCount').value = '2';
       document.getElementById('durationConstraint').value = '总时长 18.00s，本次替换的 A 段严格锁定 3.00s（1个unit）';
-      document.getElementById('targetLang').value = '菲律宾语 (PH - Tagalog / Taglish)';
+      document.getElementById('targetLang').value = selected.lang;
       document.getElementById('extraNotes').value = '部位标签：腋下；场景标签：通勤/日常户外';
+      document.getElementById('exampleMarketSelect').value = '';
     }
 
     function clearAllInputs() {
+      document.getElementById('deconstructPreview').value = '';
       document.getElementById('masterCard').value = '';
       document.getElementById('skuFacts').value = '';
       document.getElementById('variableSlot').value = '';
